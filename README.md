@@ -14,7 +14,7 @@ $login = 'your login';
 $password = 'your password';
 ```
 * Сделайте их исполняемыми
-``` bash
+```bash
 sudo -i
 chown -R zabbix:zabbix /usr/lib/zabbix
 find /usr/lib/zabbix/ -type f -iname "sms-uslugi" -exec chmod +x {} \;
