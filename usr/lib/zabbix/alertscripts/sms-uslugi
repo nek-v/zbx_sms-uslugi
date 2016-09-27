@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+
+<?php
+//
+$login = '';
+//
+$password = '';
+//
+$url = 'https://lcab.sms-uslugi.ru/lcabApi/sendSms.php?';
+
+openlog("sms-uslugi", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+
+if (count($argv)<2) {
+    syslog(LOG_NOTICE, 'Usage: '.$argv[0].' phone "message"');
+    exit;
+}
+
+$params = http_build_query([
+    'login'     => $login,
+    'password'  => $password,
+    'to'        => $argv[1],
+    'txt'       => $argv[2],
+]);
+
+$responce = json_decode(requestHttp($url.$params));
+
+if ($responce->code !== 1) {
+    syslog(LOG_ERR, $responce->descr);
+} else {
+    syslog(LOG_INFO, $responce->descr .' SMS ID: '.$responce->user_smsid);
+}
+
+function requestHttp($url, $method = 'POST')
+{
+    $options = [
+        'http' => [
+            'method'        => $method,
+            'user_agent'    => 'Zabbix Instance (+'.$_SERVER["SERVER_NAME"].')'
+        ]
+    ];
+    $context = stream_context_create($options);
+    $data    = file_get_contents($url, false, $context);
+    return $data;
+}
+closelog();
